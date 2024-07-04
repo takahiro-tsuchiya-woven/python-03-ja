@@ -21,7 +21,7 @@ def test_albums_about_love():
     albums = albums_about_love(db)
     assert isinstance(albums, list), "Should return a list."
     for album in albums:
-        assert 'love' in album.lower(), "Each album title should contain 'love'."
+        assert 'love' in album[0].lower(), "Each album title should contain 'love'."
 
 # tracks_longer_thanのテスト
 def test_tracks_longer_than():
