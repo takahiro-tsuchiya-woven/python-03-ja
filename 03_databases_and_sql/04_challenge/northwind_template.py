@@ -1,58 +1,86 @@
-# SQLとPython＋Northwindデータベース
+# SQL & Python with Northwind Database
 
 import sqlite3
 
-# northwind.dbデータベースに接続
+# Connect to the northwind.db database
 conn = sqlite3.connect('../data/northwind.db')
 db = conn.cursor()
 
-# サプライヤーのリスト
+# List of Suppliers
 def list_of_suppliers(db):
-    query = ""  # ここにSQLクエリを書いてください
+    query = "SELECT SupplierName FROM Suppliers;"
     db.execute(query)
     results = db.fetchall()
-    return results
+    return [supplier[0] for supplier in results]
 
-# 少量の注文
+# Small Orders
 def count_small_orders(db):
-    query = ""  # ここにSQLクエリを書いてください
+    query = """
+    SELECT COUNT(q)
+    FROM (
+        SELECT SUM(Quantity) as q
+        FROM OrderDetails
+        GROUP BY OrderId
+    )
+    WHERE q < 5
+    """
     db.execute(query)
     result = db.fetchone()
     return result[0] if result else 0
 
-# 最初の10商品
+# First Ten Products
 def first_ten_products(db):
-    query = ""  # ここにSQLクエリを書いてください
+    query = """
+    SELECT ProductName
+    FROM Products
+    ORDER BY ProductName
+    LIMIT 10;
+    """
     db.execute(query)
     results = db.fetchall()
-    return results
+    return [product[0] for product in results]
 
-# キーワードを含む商品
+# Products with a Keyword
 def products_with_keyword(db, keyword):
-    query = ""  # ここにSQLクエリを書いてください
+    query = f"""
+    SELECT ProductName, SupplierName
+    FROM Products
+    JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID
+    WHERE ProductName LIKE '%{keyword}%';
+    """
     db.execute(query)
     results = db.fetchall()
     return results
 
-# 商品数が多いトップ5のカテゴリー
+# Top 5 Categories by Product Count
 def top_five_categories_by_product_count(db):
-    query = ""  # ここにSQLクエリを書いてください
+    query = """
+    SELECT CategoryName, COUNT(ProductID) AS ProductCount
+    FROM Products
+    JOIN Categories ON Products.CategoryID = Categories.CategoryID
+    GROUP BY Products.CategoryID
+    ORDER BY ProductCount DESC
+    LIMIT 5;
+    """
     db.execute(query)
     results = db.fetchall()
     return results
 
-# 関数呼び出しの例 (提出する前にこれらをコメントアウトしてください)
-# print("List of Suppliers:")
-# print(list_of_suppliers(db))
+# Example function calls
+print("\nList of Suppliers:")
+print(list_of_suppliers(db))
 
-# print("\nFirst Ten Products:")
-# print(first_ten_products(db))
+print("\nSmall Orders:")
+print(count_small_orders(db))
 
-# print("\nProducts with a Keyword 'Chai':")
-# print(products_with_keyword(db, 'Chai'))
+print("\nFirst Ten Products:")
+print(first_ten_products(db))
 
-# print("\nTop 5 Categories by Product Count:")
-# print(top_five_categories_by_product_count(db))
+print("\nProducts with a Keyword 'Chais':")
+print(products_with_keyword(db, 'Chais'))
 
-# スクリプトの最後で必ずデータベース接続を閉じる
+print("\nTop 5 Categories by Product Count:")
+print(top_five_categories_by_product_count(db))
+
+# Don't forget to close the database connection at the end of your script
 conn.close()
